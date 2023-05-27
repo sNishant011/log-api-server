@@ -5,6 +5,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import configuration from './configuration';
 import { CoreModule } from './core.module';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { CoreModule } from './core.module';
       },
     }),
     CoreModule,
+    UsersModule,
   ],
   controllers: [AppController],
   providers: [AppService],

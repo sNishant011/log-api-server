@@ -18,9 +18,7 @@ async function bootstrap() {
     .setTitle('Server Logs API')
     .setVersion('1.0')
     .build();
-  const document = SwaggerModule.createDocument(app, config, {
-    deepScanRoutes: false,
-  });
+  const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('', app, document);
   await app.listen(process.env.PORT || 3001);
 }
