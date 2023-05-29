@@ -7,6 +7,8 @@ import { AuthModule } from './auth/auth.module';
 import configuration from './configs/configuration';
 import { CoreModule } from './configs/core.module';
 import { UsersModule } from './users/users.module';
+import { NginxLogsModule } from './nginx-logs/nginx-logs.module';
+import { ApacheLogsModule } from './apache-logs/apache-logs.module';
 
 @Module({
   imports: [
@@ -33,6 +35,8 @@ import { UsersModule } from './users/users.module';
     CoreModule,
     UsersModule,
     AuthModule,
+    NginxLogsModule,
+    ApacheLogsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
