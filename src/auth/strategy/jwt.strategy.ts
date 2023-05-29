@@ -22,7 +22,6 @@ export class AccessTokenStrategy extends PassportStrategy(
       jwtFromRequest: ExtractJwt.fromExtractors([
         (request: Request) => {
           const token = request?.cookies?.['accessToken'];
-          console.log(token);
           if (!token) {
             throw new UnauthorizedException();
           }

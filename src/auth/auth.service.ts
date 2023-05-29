@@ -29,7 +29,6 @@ export class AuthService {
       email: user.email,
       role: user.role,
     });
-    console.log(tokens);
     await this.userService.updateRefreshToken(user._id, tokens.refreshToken);
     return tokens;
   }
