@@ -18,6 +18,11 @@ export class ApacheLogsController {
     return this.apacheLogsService.findAll();
   }
 
+  @Get('pretty')
+  getDataForVisualization() {
+    return this.apacheLogsService.getDataForVisualization();
+  }
+
   @ApiResponse({
     status: 200,
     description: 'Get one apache log',
