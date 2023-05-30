@@ -6,6 +6,10 @@ import { LocalAuthGuard } from './guard/local-auth.guard';
 import { jwtPayload } from './strategy/jwt.strategy';
 import { LoginDto } from './strategy/local.strategy';
 import { AccessAuthGuard, RefreshAuthGuard } from './guard/jwt-auth.guard';
+import {
+  ACCESS_TOKEN_EXPIRY_IN_SEC,
+  REFRESH_TOKEN_EXPIRY_IN_SEC,
+} from 'src/configs';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -26,13 +30,13 @@ export class AuthController {
       httpOnly: true,
       secure: true,
       sameSite: 'none',
-      maxAge: 86400000,
+      maxAge: REFRESH_TOKEN_EXPIRY_IN_SEC,
     });
     res.cookie('accessToken', accessToken, {
       httpOnly: true,
       secure: true,
       sameSite: 'none',
-      maxAge: 900000,
+      maxAge: ACCESS_TOKEN_EXPIRY_IN_SEC,
     });
     return { message: 'Login success', user: req.user };
   }
@@ -63,13 +67,13 @@ export class AuthController {
       httpOnly: true,
       secure: true,
       sameSite: 'none',
-      maxAge: 86400000,
+      maxAge: REFRESH_TOKEN_EXPIRY_IN_SEC,
     });
     res.cookie('accessToken', accessToken, {
       httpOnly: true,
       secure: true,
       sameSite: 'none',
-      maxAge: 900000,
+      maxAge: ACCESS_TOKEN_EXPIRY_IN_SEC,
     });
   }
 }
