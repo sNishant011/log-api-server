@@ -24,13 +24,17 @@ export class AuthController {
     );
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
-      path: '/',
+      secure: true,
+      sameSite: 'none',
+      maxAge: 86400000,
     });
     res.cookie('accessToken', accessToken, {
       httpOnly: true,
-      path: '/',
+      secure: true,
+      sameSite: 'none',
+      maxAge: 900000,
     });
-    return { message: 'Login success' };
+    return { message: 'Login success', user: req.user };
   }
 
   @UseGuards(AccessAuthGuard)
@@ -57,11 +61,15 @@ export class AuthController {
     );
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
-      path: '/',
+      secure: true,
+      sameSite: 'none',
+      maxAge: 86400000,
     });
     res.cookie('accessToken', accessToken, {
       httpOnly: true,
-      path: '/',
+      secure: true,
+      sameSite: 'none',
+      maxAge: 900000,
     });
   }
 }

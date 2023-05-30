@@ -50,6 +50,7 @@ export class RefreshTokenStrategy extends PassportStrategy(
       jwtFromRequest: ExtractJwt.fromExtractors([
         (request: Request) => {
           const token = request?.cookies?.['refreshToken'];
+          console.log(token);
           if (!token) {
             throw new UnauthorizedException();
           }
@@ -61,6 +62,7 @@ export class RefreshTokenStrategy extends PassportStrategy(
 
   validate(req: Request, payload: jwtPayload) {
     const refreshToken = req?.cookies?.['refreshToken'];
+    console.log(refreshToken);
     return { ...payload, refreshToken };
   }
 }

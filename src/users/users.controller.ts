@@ -31,6 +31,13 @@ export class UsersController {
     return this.usersService.create(createUserDto);
   }
 
+  @Get('profile')
+  @UseGuards(AccessAuthGuard)
+  async profile(@Req() req: Request & { user: jwtPayload }) {
+    const user = await this.usersService.findOne(req.user._id);
+    return user;
+  }
+
   @ApiResponse({
     status: 200,
     description: 'Get all users',
