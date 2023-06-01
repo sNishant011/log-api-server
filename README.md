@@ -12,7 +12,8 @@ This repository contains code for serving `apache` and `nginx` logs.
 
 ## Prerequisite
 
-- Logstash
+- Rename `logstash/example.logstash.conf` file to `logstash/logstash.conf`.
+- Inside `logstash.conf` file update the path of apache and nginx log file.
 - Setup mongodb and add mongo uri in uri field inside mongo in output section of `logstash.conf` file.
 - Add the same uri in mongo uri field by creating `.env` file.
 - You may check `.env.example` file for the reference on what needs to be added in `.env` file and in what format.
