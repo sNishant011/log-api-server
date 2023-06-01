@@ -1,4 +1,12 @@
-import { Controller, Get, Post, Req, Res, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  HttpException,
+  Post,
+  Req,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import { Request, Response } from 'express';
 import { ApiBody, ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
@@ -59,24 +67,33 @@ export class AuthController {
     @Req() req: Request & { user: jwtPayload & { refreshToken: string } },
     @Res({ passthrough: true }) res: Response,
   ) {
-    const { accessToken, refreshToken } = await this.authService.refreshToken(
+    const tokens = await this.authService.refreshToken(
       req.user._id,
       req.user.refreshToken,
     );
-    res.cookie('refreshToken', refreshToken, {
-      httpOnly: true,
-      secure: true,
-      sameSite: 'none',
-      maxAge: REFRESH_TOKEN_EXPIRY_IN_SEC,
-    });
-    res.cookie('accessToken', accessToken, {
-      httpOnly: true,
-      secure: true,
-      sameSite: 'none',
-      maxAge: ACCESS_TOKEN_EXPIRY_IN_SEC,
-    });
-    return {
-      message: 'Token refreshed!',
-    };
+    if (tokens) {
+      res.cookie('refreshToken', tokens.refreshToken, {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'none',
+        maxAge: REFRESH_TOKEN_EXPIRY_IN_SEC,
+      });
+      res.cookie('accessToken', tokens.accessToken, {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'none',
+        maxAge: ACCESS_TOKEN_EXPIRY_IN_SEC,
+      });
+      return {
+        message: 'Token refreshed!',
+      };
+    } else {
+      throw new HttpException(
+        {
+          message: 'Invalid refresh token',
+        },
+        409,
+      );
+    }
   }
 }

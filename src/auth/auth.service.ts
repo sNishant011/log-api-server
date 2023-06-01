@@ -44,16 +44,18 @@ export class AuthService {
 
   async refreshToken(userId: string, refreshToken: string) {
     const user = await this.userService.getUserInfo(userId);
-    const hashedRefreshToken = user.refreshToken;
-    const isMatch = await isPasswordValid(refreshToken, hashedRefreshToken);
-    if (isMatch) {
-      const tokens = await generateToken({
-        _id: user.id,
-        email: user.email,
-        role: user.role,
-      });
-      await this.userService.updateRefreshToken(user.id, tokens.refreshToken);
-      return tokens;
+    if (user) {
+      const hashedRefreshToken = user.refreshToken;
+      const isMatch = await isPasswordValid(refreshToken, hashedRefreshToken);
+      if (isMatch) {
+        const tokens = await generateToken({
+          _id: user.id,
+          email: user.email,
+          role: user.role,
+        });
+        await this.userService.updateRefreshToken(user.id, tokens.refreshToken);
+        return tokens;
+      }
     }
     return null;
   }
