@@ -14,7 +14,7 @@ export class NginxLogsController {
 
   @ApiResponse({
     status: 200,
-    description: 'Get all apache logs',
+    description: 'Get all nginx logs',
     type: [NginxLog],
   })
   @Role([UserRole.ADMIN, , UserRole.NGINX])
@@ -24,9 +24,14 @@ export class NginxLogsController {
     return this.nginxLogsService.findAll();
   }
 
+  @Get('pretty')
+  getDataForVisualization() {
+    return this.nginxLogsService.getDataForVisualization();
+  }
+
   @ApiResponse({
     status: 200,
-    description: 'Get all apache logs',
+    description: 'Get all nginx logs',
     type: NginxLog,
   })
   @Role([UserRole.ADMIN, , UserRole.NGINX])

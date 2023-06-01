@@ -23,18 +23,8 @@ export class ApacheLogsController {
     return this.apacheLogsService.getDataForVisualization();
   }
 
-  @ApiResponse({
-    status: 200,
-    description: 'Get one apache log',
-    type: ApacheLog,
-  })
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.apacheLogsService.findOne(id);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.apacheLogsService.remove(id);
+  @Get('ip-addresses')
+  getIPAddresses() {
+    return this.apacheLogsService.getIPAddresses();
   }
 }

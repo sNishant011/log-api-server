@@ -1,7 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { User } from 'src/users/entities/user.entity';
+import {
+  getAggregationPipeline,
+  groupByTimestampPipeline,
+} from 'src/utils/aggregation-pipeline.util';
 import { ApacheLog } from './entities/apache-log.entity';
 
 @Injectable()
@@ -12,15 +15,16 @@ export class ApacheLogsService {
 
   async getDataForVisualization() {
     const count = await this.apacheModel.countDocuments();
-    const mostCommonIP = await this.getMostCommonIP();
-    const mostCommonHTTPMethod = await this.getMostCommonHTTPMethod();
+    const uniqueIPAddresses = await this.getRequestCountBy('remote_ip');
+    const mostCommonHTTPMethod = await this.getRequestCountBy('http_method');
     const requestByTime = await this.getRequestCountByTimestamp();
     const requestCountByStatus = await this.getRequestCountBy('response_code');
     const requestCountByResponseSize = await this.getRequestCountBy('bytes');
     const requestCountByUserAgent = await this.getRequestCountBy('user_agent');
     return {
       count,
-      mostCommonIP,
+      uniqueIPCount: uniqueIPAddresses.length,
+      mostCommonIP: uniqueIPAddresses,
       mostCommonHTTPMethod,
       requestByTime,
       requestCountByStatus,
@@ -28,134 +32,49 @@ export class ApacheLogsService {
       requestCountByUserAgent,
     };
   }
+  async getRequestCountBy(fieldName: string) {
+    try {
+      const result = await this.apacheModel.aggregate(
+        getAggregationPipeline(fieldName),
+      );
 
-  async getMostCommonIP() {
+      return result.filter((res) => res.value);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getRequestCountByTimestamp() {
+    try {
+      const result = await this.apacheModel.aggregate(groupByTimestampPipeline);
+
+      return result
+        .filter((entry) => entry._id)
+        .map((entry) => ({
+          value: entry._id === null ? 'Unknown' : entry._id,
+          count: entry.count,
+        }));
+    } catch (error) {
+      throw error;
+    }
+  }
+  async getIPAddresses() {
     try {
       const result = await this.apacheModel.aggregate([
         {
           $group: {
             _id: '$remote_ip',
-            count: { $sum: 1 },
-          },
-        },
-        {
-          $sort: { count: -1 },
-        },
-        {
-          $limit: 10,
-        },
-      ]);
-      return result.map((res) => ({ ip: res._id, count: res.count }));
-    } catch (error) {}
-  }
-
-  async getMostCommonHTTPMethod() {
-    try {
-      const result = await this.apacheModel.aggregate([
-        {
-          $group: {
-            _id: '$http_method',
-            count: { $sum: 1 },
-          },
-        },
-        {
-          $sort: { count: -1 },
-        },
-        {
-          $limit: 10,
-        },
-      ]);
-
-      return result.map((item) => ({
-        request: item._id,
-        count: item.count,
-      }));
-    } catch (error) {
-      throw error;
-    }
-  }
-  async getRequestCountByTimestamp(): Promise<
-    { timestamp: Date; count: number }[]
-  > {
-    try {
-      const result = await this.apacheModel.aggregate([
-        {
-          $addFields: {
-            formattedTimestamp: {
-              $dateFromString: {
-                dateString: '$timestamp',
-              },
-            },
-          },
-        },
-        {
-          $group: {
-            _id: {
-              $dateToString: {
-                format: '%Y-%m-%d %H:%M:00',
-                date: '$formattedTimestamp',
-                timezone: '+00:00',
-              },
-            },
-            count: { $sum: 1 },
           },
         },
         {
           $project: {
-            timestamp: {
-              $dateFromString: {
-                dateString: '$_id',
-                format: '%Y-%m-%d %H:%M:00',
-              },
-            },
-            count: 1,
+            ipAddress: '$_id',
             _id: 0,
           },
         },
-        {
-          $sort: {
-            timestamp: 1,
-          },
-        },
       ]);
-
-      return result.map((entry) => ({
-        timestamp: entry.timestamp,
-        count: entry.count,
-      }));
+      return result.map((entry) => entry.ipAddress);
     } catch (error) {
-      // Handle error
-      throw error;
-    }
-  }
-
-  async getRequestCountBy(fieldName: Omit<keyof User, 'timestamp'>) {
-    try {
-      const result = await this.apacheModel.aggregate([
-        {
-          $group: {
-            _id: `$${fieldName}`,
-            count: { $sum: 1 },
-          },
-        },
-        {
-          $project: {
-            value: '$_id',
-            count: 1,
-            _id: 0,
-          },
-        },
-        {
-          $sort: { count: -1 },
-        },
-        {
-          $limit: 10,
-        },
-      ]);
-
-      return result;
-    } catch (error) {
-      // Handle error
       throw error;
     }
   }
