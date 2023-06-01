@@ -40,6 +40,9 @@ dependencies:
   cookie-parser:
     specifier: ^1.4.6
     version: 1.4.6
+  mongodb:
+    specifier: ^5.5.0
+    version: 5.5.0
   mongoose:
     specifier: ^7.2.1
     version: 7.2.1
