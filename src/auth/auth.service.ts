@@ -16,7 +16,11 @@ export class AuthService {
     if (user) {
       const isMatch = await isPasswordValid(password, user.password);
       if (isMatch) {
-        return user;
+        return {
+          _id: user._id,
+          email: user.email,
+          role: user.role,
+        };
       }
       return null;
     }
