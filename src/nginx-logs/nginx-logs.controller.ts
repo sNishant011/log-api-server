@@ -24,6 +24,8 @@ export class NginxLogsController {
     return this.nginxLogsService.findAll();
   }
 
+  @Role([UserRole.ADMIN, , UserRole.NGINX])
+  @UseGuards(AccessAuthGuard, RoleGuard)
   @Get('pretty')
   getDataForVisualization() {
     return this.nginxLogsService.getDataForVisualization();

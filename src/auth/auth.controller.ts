@@ -28,13 +28,13 @@ export class AuthController {
     );
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
-      secure: false,
+      secure: true,
       sameSite: 'none',
       maxAge: REFRESH_TOKEN_EXPIRY_IN_SEC,
     });
     res.cookie('accessToken', accessToken, {
       httpOnly: true,
-      secure: false,
+      secure: true,
       sameSite: 'none',
       maxAge: ACCESS_TOKEN_EXPIRY_IN_SEC,
     });
@@ -65,13 +65,13 @@ export class AuthController {
     );
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
-      secure: false,
+      secure: true,
       sameSite: 'none',
       maxAge: REFRESH_TOKEN_EXPIRY_IN_SEC,
     });
     res.cookie('accessToken', accessToken, {
       httpOnly: true,
-      secure: false,
+      secure: true,
       sameSite: 'none',
       maxAge: ACCESS_TOKEN_EXPIRY_IN_SEC,
     });

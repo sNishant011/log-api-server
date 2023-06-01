@@ -30,10 +30,7 @@ export class UsersService {
   }
 
   findOneByEmail(email: string) {
-    return this.userModel
-      .findOne({ email })
-      .select(['-password', '-refreshToken'])
-      .exec();
+    return this.userModel.findOne({ email }).exec();
   }
 
   async update(id: string, updateUserDto: UpdateUserDto) {
