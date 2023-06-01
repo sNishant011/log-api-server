@@ -1,5 +1,12 @@
-import { Controller, Get, Param, Delete, UseGuards } from '@nestjs/common';
-import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  Controller,
+  Get,
+  Param,
+  Delete,
+  UseGuards,
+  Query,
+} from '@nestjs/common';
+import { ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Role } from 'src/auth/decorator/role.decorator';
 import { AccessAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 import { RoleGuard } from 'src/auth/guard/role.guard';
@@ -12,6 +19,16 @@ import { NginxLogsService } from './nginx-logs.service';
 export class NginxLogsController {
   constructor(private readonly nginxLogsService: NginxLogsService) {}
 
+  @ApiQuery({
+    type: String,
+    name: 'ipAddress',
+    required: false,
+  })
+  @ApiQuery({
+    type: String,
+    name: 'date',
+    required: false,
+  })
   @ApiResponse({
     status: 200,
     description: 'Get all nginx logs',
@@ -20,8 +37,11 @@ export class NginxLogsController {
   @Role([UserRole.ADMIN, , UserRole.NGINX])
   @UseGuards(AccessAuthGuard, RoleGuard)
   @Get()
-  findAll() {
-    return this.nginxLogsService.findAll();
+  findAll(
+    @Query('ipAddress') ipAddress?: string,
+    @Query('date') date?: string,
+  ) {
+    return this.nginxLogsService.findAll(ipAddress, date);
   }
 
   @Role([UserRole.ADMIN, , UserRole.NGINX])

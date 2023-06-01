@@ -13,8 +13,18 @@ export class NginxLogsService {
     @InjectModel(NginxLog.name) private nginxModel: Model<NginxLog>,
   ) {}
 
-  findAll() {
-    return this.nginxModel.find().limit(50).exec();
+  findAll(ipAddress?: string, date?: string) {
+    const queryObject: {
+      remote_ip?: string;
+      date?: string;
+    } = {};
+    if (ipAddress) {
+      queryObject['remote_ip'] = ipAddress;
+    }
+    if (date) {
+      queryObject['timestamp'] = new RegExp(`.*${date}.*`);
+    }
+    return this.nginxModel.find(queryObject).exec();
   }
 
   findOne(id: string) {

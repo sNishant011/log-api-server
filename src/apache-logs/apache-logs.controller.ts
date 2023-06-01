@@ -1,5 +1,5 @@
-import { Controller, Get, UseGuards } from '@nestjs/common';
-import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Controller, Get, Query, UseGuards } from '@nestjs/common';
+import { ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Role } from 'src/auth/decorator/role.decorator';
 import { AccessAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 import { RoleGuard } from 'src/auth/guard/role.guard';
@@ -14,14 +14,27 @@ export class ApacheLogsController {
 
   @Role([UserRole.ADMIN, , UserRole.APACHE])
   @UseGuards(AccessAuthGuard, RoleGuard)
+  @ApiQuery({
+    type: String,
+    name: 'ipAddress',
+    required: false,
+  })
+  @ApiQuery({
+    type: String,
+    name: 'date',
+    required: false,
+  })
   @ApiResponse({
     status: 200,
     description: 'Get all apache logs',
     type: [ApacheLog],
   })
   @Get()
-  findAll() {
-    return this.apacheLogsService.findAll();
+  findAll(
+    @Query('ipAddress') ipAddress?: string,
+    @Query('date') date?: string,
+  ) {
+    return this.apacheLogsService.findAll(ipAddress, date);
   }
 
   @Role([UserRole.ADMIN, , UserRole.APACHE])

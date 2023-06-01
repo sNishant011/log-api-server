@@ -80,8 +80,18 @@ export class ApacheLogsService {
     }
   }
 
-  findAll() {
-    return this.apacheModel.find().limit(50).exec();
+  findAll(ipAddress?: string, date?: string) {
+    const queryObject: {
+      remote_ip?: string;
+      date?: string;
+    } = {};
+    if (ipAddress) {
+      queryObject['remote_ip'] = ipAddress;
+    }
+    if (date) {
+      queryObject['timestamp'] = new RegExp(`.*${date}.*`);
+    }
+    return this.apacheModel.find(queryObject).exec();
   }
 
   findOne(id: string) {
