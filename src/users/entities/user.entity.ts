@@ -13,16 +13,23 @@ export enum UserRole {
 export class User {
   _id?: string;
 
-  @Prop()
+  @Prop({
+    unique: true,
+    required: true,
+  })
   email: string;
 
-  @Prop()
+  @Prop({ type: String, required: true })
   password: string;
 
-  @Prop()
+  @Prop({
+    type: String,
+    enum: UserRole,
+    required: true,
+  })
   role: UserRole;
 
-  @Prop()
+  @Prop({ type: String })
   refreshToken?: string;
 }
 

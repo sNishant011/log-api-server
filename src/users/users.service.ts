@@ -13,20 +13,27 @@ export class UsersService {
   async create(createUserDto: CreateUserDto): Promise<User> {
     const { passwordHash } = await getPasswordHash(createUserDto.password, 6);
     createUserDto.password = passwordHash;
-    const createdUser = new this.userModel(createUserDto);
-    return createdUser.save();
+    const user = new this.userModel(createUserDto);
+    const savedUser = await user.save();
+    return this.findOne(savedUser._id);
   }
 
   findAll() {
-    return this.userModel.find().exec();
+    return this.userModel.find().select(['-password', '-refreshToken']).exec();
   }
 
   findOne(id: string) {
-    return this.userModel.findById(id).exec();
+    return this.userModel
+      .findById(id)
+      .select(['-password', '-refreshToken'])
+      .exec();
   }
 
   findOneByEmail(email: string) {
-    return this.userModel.findOne({ email }).exec();
+    return this.userModel
+      .findOne({ email })
+      .select(['-password', '-refreshToken'])
+      .exec();
   }
 
   async update(id: string, updateUserDto: UpdateUserDto) {
@@ -34,21 +41,27 @@ export class UsersService {
       const { passwordHash } = await getPasswordHash(updateUserDto.password, 6);
       updateUserDto.password = passwordHash;
     }
-    return this.userModel.findByIdAndUpdate(
-      {
-        _id: id,
-      },
-      {
-        $set: updateUserDto,
-      },
-      {
-        new: true,
-      },
-    );
+    return this.userModel
+      .findByIdAndUpdate(
+        {
+          _id: id,
+        },
+        {
+          $set: updateUserDto,
+        },
+        {
+          new: true,
+        },
+      )
+      .select(['-password', '-refreshToken']);
   }
 
   remove(id: string): Promise<any> {
     return this.userModel.deleteOne({ _id: id }).exec();
+  }
+
+  getUserInfo(id: string) {
+    return this.userModel.findById(id);
   }
 
   async updateRefreshToken(id: string, refreshToken: string) {

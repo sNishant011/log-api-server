@@ -39,7 +39,7 @@ export class AuthService {
   }
 
   async refreshToken(userId: string, refreshToken: string) {
-    const user = await this.userService.findOne(userId);
+    const user = await this.userService.getUserInfo(userId);
     const hashedRefreshToken = user.refreshToken;
     const isMatch = await isPasswordValid(refreshToken, hashedRefreshToken);
     if (isMatch) {
