@@ -8,7 +8,7 @@ This repository contains code for serving `apache` and `nginx` logs.
 - Role Based Access Control
 - Logstash as data processing pipeline for seeding apache and nginx logs to mongodb in proper format. 
 - Logstash folder contains logstash config for seeding apache and nginx logs in respective collection.
-- Used Mongo DB aggregation pipeline for serving data as required for visualization in frontend. 
+- Used Mongo DB aggregation pipeline for serving data as required for visualization in frontend.
 
 ## Prerequisite
 
@@ -39,3 +39,17 @@ pnpm start:dev
 ```
 
 The default port is `3001`. Head to `localhost:3001`. Good to go!
+
+`Note: create user endpoint is not protected for test purpose.`
+It should be decorated by AccessGuards and Role guards in production as follows:
+
+```ts
+  @Role([UserRole.ADMIN])
+  @UseGuards(AccessAuthGuard, RoleGuard)
+  @ApiBody({ type: CreateUserDto })
+  @Post()
+  create(@Body() createUserDto: CreateUserDto) {
+    return this.usersService.create(createUserDto);
+  }
+```
+
