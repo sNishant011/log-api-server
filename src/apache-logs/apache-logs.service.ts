@@ -15,7 +15,8 @@ export class ApacheLogsService {
 
   async getDataForVisualization() {
     const count = await this.apacheModel.countDocuments();
-    const uniqueIPAddresses = await this.getRequestCountBy('remote_ip');
+    const uniqueIPAddresses = await this.getIPAddresses();
+    const mostCommonIP = await this.getRequestCountBy('remote_ip');
     const mostCommonHTTPMethod = await this.getRequestCountBy('http_method');
     const requestByTime = await this.getRequestCountByTimestamp();
     const requestCountByStatus = await this.getRequestCountBy('response_code');
@@ -24,7 +25,7 @@ export class ApacheLogsService {
     return {
       count,
       uniqueIPCount: uniqueIPAddresses.length,
-      mostCommonIP: uniqueIPAddresses,
+      mostCommonIP,
       mostCommonHTTPMethod,
       requestByTime,
       requestCountByStatus,

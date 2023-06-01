@@ -27,7 +27,8 @@ export class NginxLogsService {
 
   async getDataForVisualization() {
     const count = await this.nginxModel.countDocuments();
-    const uniqueIPAddresses = await this.getRequestCountBy('remote_ip');
+    const uniqueIPAddresses = await this.getIPAddresses();
+    const mostCommonIP = await this.getRequestCountBy('remote_ip');
     const mostCommonHTTPMethod = await this.getRequestCountBy('http_method');
     const requestByTime = await this.getRequestCountByTimestamp();
     const requestCountByStatus = await this.getRequestCountBy('response_code');
@@ -36,7 +37,7 @@ export class NginxLogsService {
     return {
       count,
       uniqueIPCount: uniqueIPAddresses.length,
-      mostCommonIP: uniqueIPAddresses.slice(0, 10),
+      mostCommonIP,
       mostCommonHTTPMethod,
       requestByTime,
       requestCountByStatus,
@@ -53,6 +54,27 @@ export class NginxLogsService {
       return result.filter((res) => res.value);
     } catch (error) {
       // Handle error
+      throw error;
+    }
+  }
+
+  async getIPAddresses() {
+    try {
+      const result = await this.nginxModel.aggregate([
+        {
+          $group: {
+            _id: '$remote_ip',
+          },
+        },
+        {
+          $project: {
+            ipAddress: '$_id',
+            _id: 0,
+          },
+        },
+      ]);
+      return result.map((entry) => entry.ipAddress);
+    } catch (error) {
       throw error;
     }
   }
