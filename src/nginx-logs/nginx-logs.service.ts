@@ -13,7 +13,12 @@ export class NginxLogsService {
     @InjectModel(NginxLog.name) private nginxModel: Model<NginxLog>,
   ) {}
 
-  findAll(ipAddress?: string, date?: string) {
+  findAll(
+    current: number,
+    pageSize: number,
+    ipAddress?: string,
+    date?: string,
+  ) {
     const queryObject: {
       remote_ip?: string;
       date?: string;
@@ -24,7 +29,26 @@ export class NginxLogsService {
     if (date) {
       queryObject['timestamp'] = new RegExp(`.*${date}.*`);
     }
-    return this.nginxModel.find(queryObject).exec();
+    return this.nginxModel
+      .find(queryObject)
+      .skip((current - 1) * pageSize)
+      .limit(pageSize)
+      .exec();
+  }
+
+  async getTotalCount(ipAddress: string, date: string) {
+    const queryObject: {
+      remote_ip?: string;
+      date?: string;
+    } = {};
+    if (ipAddress) {
+      queryObject['remote_ip'] = ipAddress;
+    }
+    if (date) {
+      queryObject['timestamp'] = new RegExp(`.*${date}.*`);
+    }
+    const count = await this.nginxModel.countDocuments(queryObject).exec();
+    return count;
   }
 
   findOne(id: string) {

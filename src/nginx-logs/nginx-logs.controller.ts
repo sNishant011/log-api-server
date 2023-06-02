@@ -5,6 +5,7 @@ import {
   Delete,
   UseGuards,
   Query,
+  HttpException,
 } from '@nestjs/common';
 import { ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Role } from 'src/auth/decorator/role.decorator';
@@ -34,14 +35,48 @@ export class NginxLogsController {
     description: 'Get all nginx logs',
     type: [NginxLog],
   })
+  @ApiQuery({
+    type: Number,
+    name: 'current',
+    required: true,
+  })
+  @ApiQuery({
+    type: Number,
+    name: 'pageSize',
+    required: true,
+  })
   @Role([UserRole.ADMIN, , UserRole.NGINX])
   @UseGuards(AccessAuthGuard, RoleGuard)
   @Get()
-  findAll(
+  async findAll(
     @Query('ipAddress') ipAddress?: string,
     @Query('date') date?: string,
+    @Query('current') current?: string,
+    @Query('pageSize') pageSize?: string,
   ) {
-    return this.nginxLogsService.findAll(ipAddress, date);
+    if (!current && !pageSize) {
+      throw new HttpException(
+        {
+          message: 'Pagination query are required',
+        },
+        400,
+      );
+    }
+
+    const data = await this.nginxLogsService.findAll(
+      +current,
+      +pageSize,
+      ipAddress,
+      date,
+    );
+    const totalCount = await this.nginxLogsService.getTotalCount(
+      ipAddress,
+      date,
+    );
+    return {
+      data,
+      total: totalCount,
+    };
   }
 
   @Role([UserRole.ADMIN, , UserRole.NGINX])

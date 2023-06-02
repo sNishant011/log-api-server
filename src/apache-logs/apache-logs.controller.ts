@@ -1,4 +1,10 @@
-import { Controller, Get, Query, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  HttpException,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Role } from 'src/auth/decorator/role.decorator';
 import { AccessAuthGuard } from 'src/auth/guard/jwt-auth.guard';
@@ -24,17 +30,50 @@ export class ApacheLogsController {
     name: 'date',
     required: false,
   })
+  @ApiQuery({
+    type: Number,
+    name: 'current',
+    required: true,
+  })
+  @ApiQuery({
+    type: Number,
+    name: 'pageSize',
+    required: true,
+  })
   @ApiResponse({
     status: 200,
     description: 'Get all apache logs',
     type: [ApacheLog],
   })
   @Get()
-  findAll(
+  async findAll(
     @Query('ipAddress') ipAddress?: string,
     @Query('date') date?: string,
+    @Query('current') current?: string,
+    @Query('pageSize') pageSize?: string,
   ) {
-    return this.apacheLogsService.findAll(ipAddress, date);
+    if (!current && !pageSize) {
+      throw new HttpException(
+        {
+          message: 'Pagination query are required',
+        },
+        400,
+      );
+    }
+    const data = await this.apacheLogsService.findAll(
+      +current,
+      +pageSize,
+      ipAddress,
+      date,
+    );
+    const totalCount = await this.apacheLogsService.getTotalCount(
+      ipAddress,
+      date,
+    );
+    return {
+      data,
+      total: totalCount,
+    };
   }
 
   @Role([UserRole.ADMIN, , UserRole.APACHE])
